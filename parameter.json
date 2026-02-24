@@ -34,6 +34,12 @@
         },
         "vmSize": {
             "value": "Standard_B1s"
+        },
+        "tags": {
+            "value": {
+                "owner": "ykim",
+                "project": "2tier-arm"
+            }
         }
     }
 }
