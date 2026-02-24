@@ -63,6 +63,40 @@
                     }
                 ]
             }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('vnetName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.20.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('vmSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "10.20.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[parameters('peSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "10.20.2.0/24"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

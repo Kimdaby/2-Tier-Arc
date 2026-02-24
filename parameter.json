@@ -40,6 +40,9 @@
                 "owner": "ykim",
                 "project": "2tier-arm"
             }
+        },
+        "containerName": {
+            "value": "ykim2tierdata"
         }
     }
 }
