@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "centralus"
+        },
+        "vnetName": {
+            "value": "ykim2tier-vnet"
+        },
+        "subnetName": {
+            "value": "ykim2tier-subnet"
+        },
+        "nsgName": {
+            "value": "ykim2tier-nsg"
+        },
+        "publicIpName": {
+            "value": "ykim2tier-pip"
+        },
+        "nicName": {
+            "value": "ykim2tier-nic"
+        },
+        "vmName": {
+            "value": "ykim2tier-vm"
+        },
+        "storageAccountName": {
+            "value": "ykim2tierstorage123"
+        },
+        "adminUsername": {
+            "value": "azureuser"
+        },
+        "sshPublicKey": {
+            "value": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH7N1jLq02+cQekcbQaYPoCxOdoCLRyGYu+jN+0+vbRK davidhkim22@gmail.com"
+        },
+        "vmSize": {
+            "value": "Standard_B1s"
+        }
+    }
+}
