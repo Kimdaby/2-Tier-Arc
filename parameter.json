@@ -5,11 +5,20 @@
         "location": {
             "value": "centralus"
         },
+        "tags": {
+            "value": {
+                "owner": "ykim",
+                "project": "2tierarm"
+            }
+        },
         "vnetName": {
             "value": "ykim2tier-vnet"
         },
-        "subnetName": {
-            "value": "ykim2tier-subnet"
+        "vmSubnetName": {
+            "value": "ykim2tier-vmsubnet"
+        },
+        "peSubnetName": {
+            "value": "ykim2tier-pesubnet"
         },
         "nsgName": {
             "value": "ykim2tier-nsg"
@@ -24,7 +33,22 @@
             "value": "ykim2tier-vm"
         },
         "storageAccountName": {
-            "value": "ykim2tierstorage123"
+            "value": "ykim2tierstg123456"
+        },
+        "containerName": {
+            "value": "ykim2tiercontainer"
+        },
+        "privateEndpointName": {
+            "value": "ykim2tier-pe-blob"
+        },
+        "privateDnsZoneName": {
+            "value": "privatelink.blob.core.windows.net"
+        },
+        "privateDnsVnetLinkName": {
+            "value": "ykim2tier-dnslink"
+        },
+        "privateDnsZoneGroupName": {
+            "value": "ykim2tier-zonegroup"
         },
         "adminUsername": {
             "value": "azureuser"
@@ -34,15 +58,6 @@
         },
         "vmSize": {
             "value": "Standard_B1s"
-        },
-        "tags": {
-            "value": {
-                "owner": "ykim",
-                "project": "2tier-arm"
-            }
-        },
-        "containerName": {
-            "value": "ykim2tierdata"
         }
     }
 }

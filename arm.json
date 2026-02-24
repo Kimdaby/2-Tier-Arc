@@ -5,10 +5,16 @@
         "location": {
             "type": "string"
         },
+        "tags": {
+            "type": "object"
+        },
         "vnetName": {
             "type": "string"
         },
-        "subnetName": {
+        "vmSubnetName": {
+            "type": "string"
+        },
+        "peSubnetName": {
             "type": "string"
         },
         "nsgName": {
@@ -26,6 +32,22 @@
         "storageAccountName": {
             "type": "string"
         },
+        "containerName": {
+            "type": "string"
+        },
+        "privateEndpointName": {
+            "type": "string"
+        },
+        "privateDnsZoneName": {
+            "type": "string",
+            "defaultValue": "privatelink.blob.core.windows.net"
+        },
+        "privateDnsVnetLinkName": {
+            "type": "string"
+        },
+        "privateDnsZoneGroupName": {
+            "type": "string"
+        },
         "adminUsername": {
             "type": "string"
         },
@@ -34,9 +56,6 @@
         },
         "vmSize": {
             "type": "string"
-        },
-        "tags": {
-            "type": "object"
         }
     },
     "resources": [
@@ -93,6 +112,46 @@
                         "name": "[parameters('peSubnetName')]",
                         "properties": {
                             "addressPrefix": "10.20.2.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('publicIpName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('nicName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('vmSubnetName'))]"
+                            }
                         }
                     }
                 ]
