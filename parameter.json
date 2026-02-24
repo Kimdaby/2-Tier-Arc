@@ -57,7 +57,7 @@
             "value": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH7N1jLq02+cQekcbQaYPoCxOdoCLRyGYu+jN+0+vbRK davidhkim22@gmail.com"
         },
         "vmSize": {
-            "value": "Standard_B1s"
+            "value": "Standard_D2s_v3"
         }
     }
 }

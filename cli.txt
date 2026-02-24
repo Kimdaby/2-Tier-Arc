@@ -1,0 +1,37 @@
+# CLI commands and outputs
+
+# Validate Deployment
+
+az deployment group validate --resource-group 20251229-PWC-Azure --template-file arm.json --parameters "@parameter.json" -o table
+
+# Expected output
+
+Result CorrelationId
+
+---
+
+Succeeded 28cd5441-b5ce-4242-9cb0-65be4de4ffaf
+
+# Deploy Template
+
+az deployment group create --resource-group 20251229-PWC-Azure --template-file arm.json --parameters "@parameter.json" -o table
+
+# Expected output
+
+Name State Timestamp Mode ResourceGroup
+
+---
+
+ykim2tier-deploy Succeeded 2026-02-24T17:30:32.907751+00:00 Incremental 20251229-PWC-Azure
+
+# List resources under tag ykim
+
+az resource list --resource-group 20251229-PWC-Azure --query "[?tags.owner=='ykim'].{name:name,type:type,location:location}" -o table
+
+# Git commands
+git init
+git remote add origin https://github.com/Kimdaby/2-Tier-Arc.git
+git branch -M main
+git add -A
+git commit -m ""
+git push

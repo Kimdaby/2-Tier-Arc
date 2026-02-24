@@ -61,7 +61,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2025-05-01",
+            "apiVersion": "2023-11-01",
             "name": "[parameters('nsgName')]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
@@ -85,7 +85,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2025-05-01",
+            "apiVersion": "2023-11-01",
             "name": "[parameters('vnetName')]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
@@ -111,7 +111,8 @@
                     {
                         "name": "[parameters('peSubnetName')]",
                         "properties": {
-                            "addressPrefix": "10.20.2.0/24"
+                            "addressPrefix": "10.20.2.0/24",
+                            "privateEndpointNetworkPolicies": "Disabled"
                         }
                     }
                 ]
@@ -119,7 +120,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2025-05-01",
+            "apiVersion": "2023-11-01",
             "name": "[parameters('publicIpName')]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
@@ -132,7 +133,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2025-05-01",
+            "apiVersion": "2023-11-01",
             "name": "[parameters('nicName')]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
@@ -159,7 +160,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2025-05-01",
+            "apiVersion": "2023-09-01",
             "name": "[parameters('vmName')]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
@@ -204,6 +205,126 @@
                     ]
                 }
             }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "publicNetworkAccess": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/', parameters('containerName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('privateDnsZoneName')]",
+            "location": "global",
+            "tags": "[parameters('tags')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZoneName'), '/', parameters('privateDnsVnetLinkName'))]",
+            "location": "global",
+            "tags": "[parameters('tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('privateEndpointName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            ],
+            "properties": {
+                "subnet": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('peSubnetName'))]"
+                },
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "blobConnection",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                            "groupIds": [
+                                "blob"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('privateEndpointName'), '/', parameters('privateDnsZoneGroupName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "blobZone",
+                        "properties": {
+                            "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]"
+                        }
+                    }
+                ]
+            }
         }
-    ]
+    ],
+    "outputs": {
+        "publicIpAddress": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))).ipAddress]"
+        },
+        "storageAccountName": {
+            "type": "string",
+            "value": "[parameters('storageAccountName')]"
+        },
+        "containerName": {
+            "type": "string",
+            "value": "[parameters('containerName')]"
+        }
+    }
 }
